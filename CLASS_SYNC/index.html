@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url(study.png) no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    div{
+        background-size: auto;
+    }
+    
+    header {
+      color: white;
+      padding: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .course-box-container {
+      display: none;
+      justify-content: center;
+      gap: 30px;
+      margin: 40px auto 20px;
+      flex-wrap: wrap;
+    }
+    .course-box {
+      width: 250px;
+      height: 150px;
+      background-image: url('');
+      background-size: cover;
+      background-position: center;
+      border-radius: 15px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      transition: transform 0.3s ease;
+      text-shadow: 1px 1px 5px #000;
+      cursor: pointer;
+    }
+    .course-box:hover {
+      transform: scale(1.05);
+    }
+    nav {
+      margin: 20px 0;
+    }
+    nav button {
+      background: linear-gradient(145deg, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s;
+      box-shadow: 0 6px 12px rgba(218, 215, 215, 0.2);
+    }
+    nav button:hover {
+      background: #003d80;
+      transform: translateY(-2px);
+    }
+    .section {
+      display: none;
+      background: rgba(182, 178, 178, 0.95);
+      padding: 30px;
+      margin: 20px auto;
+      width: 80%;
+      box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 15px;
+      transition: all 0.4s;
+    }
+    .section.active {
+      display: block;
+    }
+    input, select, textarea {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    canvas {
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    .chart-container {
+      text-align: center;
+    }
+    .pie-chart-css {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: conic-gradient(#007bff 0% 30%, #ffc107 30% 40%, #28a745 40% 100%);
+      margin: 20px auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      margin-right: 5px;
+      border-radius: 3px;
+    }
+    .assignment { background-color: #007bff; }
+    .test { background-color: #ffc107; }
+    .other { background-color: #28a745; }
+  </style>
+</head>
+<body onload="initializePortal()">
+  <header><h1>STUDENT PORTAL</h1></header>
+
+  <!-- Signup Section -->
+  <section id="signupSection" class="section">
+    <h2>Student Sign Up</h2>
+    <input type="text" id="signupName" placeholder="Your Name" />
+    <input type="email" id="signupEmail" placeholder="Student Email" />
+    <input type="password" id="signupPassword" placeholder="Password" />
+    <select id="signupCourseList"></select>
+    <button onclick="signup()">Sign Up</button>
+    <p>Already have an account? <a href="#" onclick="toggleAuthSection('login')">Login here</a></p>
+  </section>
+
+  <!-- Login Section -->
+  <section id="loginSection" class="section active">
+    <h2>Student Login</h2>
+    <input type="email" id="loginEmail" placeholder="Student Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p>New user? <a href="#" onclick="toggleAuthSection('signup')">Sign up here</a></p>
+  </section>
+
+  
+
+  <!-- Main Portal -->
+  <main id="mainPortal" class="section">
+    <nav>
+      <button onclick="showSection('assignmentSection')">Assignments</button>
+      <button onclick="showSection('quizSection')">Quizzes</button>
+      <button onclick="showSection('inlineQuizSection')">Inline Quizzes</button>
+      <button onclick="showSection('testSeriesSection')">Test Series</button>
+      <button onclick="showSection('progressSection')">Progress</button>
+      <button onclick="showSection('notificationSection')">Notifications</button>
+    </nav>
+
+    <!-- Assignments -->
+    <section id="assignmentSection" class="section"><h2>Submit Assignment</h2><select id="assignmentList"></select><input type="file" /><button>Submit</button></section>
+
+    <!-- Quizzes -->
+    <section id="quizSection" class="section">
+      <h2>Take Quiz</h2>
+      <select id="quizList"></select>
+      <input type="text" id="quizQuestion" placeholder="Enter your question" />
+      <input type="text" id="optionA" placeholder="Option A" />
+      <input type="text" id="optionB" placeholder="Option B" />
+      <input type="text" id="optionC" placeholder="Option C" />
+      <input type="text" id="optionD" placeholder="Option D" />
+      <input type="text" id="correctOption" placeholder="Correct option (A/B/C/D)" />
+      <div>
+        <p><strong>Choose Answer:</strong></p>
+        <input type="radio" name="quizOption" value="A" /> A<br />
+        <input type="radio" name="quizOption" value="B" /> B<br />
+        <input type="radio" name="quizOption" value="C" /> C<br />
+        <input type="radio" name="quizOption" value="D" /> D<br />
+      </div>
+      <button onclick="submitQuiz()">Submit</button>
+      <div id="quizResult" style="margin-top: 15px; color: green; font-weight: bold;"></div>
+    </section>
+
+    <!-- Inline Quiz -->
+    <section id="inlineQuizSection" class="section">
+      <h2>Inline Quiz</h2>
+      <p>Q: What is 2 + 2?</p>
+      <input type="text" id="inlineAnswer" placeholder="Your answer here" />
+      <button onclick="alert('Answer saved')">Submit</button>
+    </section>
+
+    <!-- Test Series -->
+    <section id="testSeriesSection" class="section">
+      <h2>Test Series</h2>
+      <p>Select a test series to begin:</p>
+      <select>
+        <option>Test Series 1</option>
+        <option>Test Series 2</option>
+        <option>Test Series 3</option>
+      </select>
+      <button>Start</button>
+    </section>
+
+    <!-- Progress -->
+    <section id="progressSection" class="section">
+      <h2>Your Progress</h2>
+      <canvas id="progressChart"></canvas>
+      <canvas id="barChart"></canvas>
+      <div class="chart-container">
+        <h3>Static CSS Pie Chart</h3>
+        <div class="pie-chart-css"></div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-color assignment"></div>Assignment (30%)</div>
+          <div class="legend-item"><div class="legend-color test"></div>Test (10%)</div>
+          <div class="legend-item"><div class="legend-color other"></div>Other (60%)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section id="notificationSection" class="section">
+      <h2>Notifications</h2>
+      <ul id="notificationList"></ul>
+    </section>
+  </main>
+
+  <!-- Course Selection at Bottom -->
+  <section id="courseBoxSection" class="section">
+    <h2>Select Your Course</h2>
+    <div  class="course-box-container" id="courseBoxes">
+      <div class="course-box" onclick="selectCourse('C')"><img src="c.jpg" width="80" alt="C"</div>
+      <div class="course-box" onclick="selectCourse('C++')"><img src="c++.jpg" width="80" alt="C++"</div>
+      <div class="course-box" onclick="selectCourse('JAVA')"><img src="java.jpg"  width="80" alt="java"></div>
+      <div class="course-box" onclick="selectCourse('PYTHON')"><img src="python.jpg" width="80" alt="python"></div>
+    </div>
+  </section>
+    
+
+  <!-- JavaScript -->
+  <script>
+    let pieChartInstance, barChartInstance;
+
+    function initializePortal() {
+      toggleAuthSection('login');
+      loadCourses();
+    }
+
+    function toggleAuthSection(section) {
+      document.getElementById('signupSection').classList.remove('active');
+      document.getElementById('loginSection').classList.remove('active');
+      if (section) document.getElementById(section + 'Section').classList.add('active');
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('#mainPortal .section').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function signup() {
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const courseId = document.getElementById('signupCourseList').value;
+      if (!email || !password) return alert('Please enter all fields');
+      localStorage.setItem(email, JSON.stringify({ name, password, courseId }));
+      alert('Signup successful. Please login.');
+      toggleAuthSection('login');
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const stored = localStorage.getItem(email);
+      if (!stored) return alert('No account found.');
+      const user = JSON.parse(stored);
+      if (user.password !== password) return alert('Incorrect password');
+      localStorage.setItem('loggedInUser', email);
+      document.getElementById('courseBoxSection').style.display = 'block';
+      document.getElementById('courseBoxes').style.display = 'flex';
+      // Show bottom course section
+      document.getElementById('bottomCourseSection').style.display = 'block';
+      document.getElementById('bottomCourseBoxes').style.display = 'flex';
+    }
+
+    function selectCourse(courseId) {
+      document.getElementById('courseBoxSection').style.display = 'none';
+      document.getElementById('mainPortal').classList.add('active');
+      showSection('assignmentSection');
+      loadChart();
+      loadNotifications();
+    }
+
+    function loadCourses() {
+      const courses = [
+        { id: 'c101', name: 'C Programming' },
+        { id: 'j202', name: 'Java Programming' },
+        { id: 'p303', name: 'Python Basics' },
+        { id: 't404', name: 'Test Series Masterclass' }
+      ];
+      ['signupCourseList', 'assignmentList', 'quizList'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = '';
+        courses.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          el.appendChild(opt);
+        });
+      });
+    }
+
+    function submitQuiz() {
+      const selected = document.querySelector('input[name="quizOption"]:checked');
+      const correctOption = document.getElementById('correctOption').value.trim().toUpperCase();
+      const resultBox = document.getElementById('quizResult');
+      if (!selected) return alert('Please select an option.');
+      const isCorrect = selected.value === correctOption;
+      const email = localStorage.getItem('loggedInUser');
+      let progressData = JSON.parse(localStorage.getItem('progress_' + email)) || { assignments: 0, quizzes: 0, attendance: 0 };
+      progressData.quizzes = Math.min(100, ((progressData.quizzes || 0) + (isCorrect ? 10 : 0)) / 2);
+      resultBox.innerText = isCorrect ? "Correct! You scored 10/10." : `Incorrect. Correct answer is option ${correctOption}. You scored 0/10.`;
+      localStorage.setItem('progress_' + email, JSON.stringify(progressData));
+      loadChart();
+    }
+
+    function loadChart() {
+      const email = localStorage.getItem('loggedInUser');
+      const data = JSON.parse(localStorage.getItem('progress_' + email)) || { assignments: 30, quizzes: 10, attendance: 60 };
+      const pieCtx = document.getElementById('progressChart').getContext('2d');
+      const barCtx = document.getElementById('barChart').getContext('2d');
+
+      if (pieChartInstance) pieChartInstance.destroy();
+      if (barChartInstance) barChartInstance.destroy();
+
+      pieChartInstance = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Assignments', 'Quizzes', 'Attendance'],
+          datasets: [{
+            data: [data.assignments, data.quizzes, data.attendance],
+            backgroundColor: ['#007bff', '#ffc107', '#28a745']
+          }]
+        }
+      });
+
+      barChartInstance = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Assignments', 'Quizzes', 'Attendance'],
+          datasets: [{
+            label: 'Progress',
+            data: [data.assignments, data.quizzes, data.attendance],
+            backgroundColor: ['#007bff', '#ffc107', '#28a745']
+          }]
+        }
+      });
+    }
+
+    function loadNotifications() {
+      const list = document.getElementById('notificationList');
+      const notes = ['Assignment 1 deadline approaching', 'New quiz available', 'Grades updated'];
+      list.innerHTML = '';
+      notes.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        list.appendChild(li);
+      });
+    }
+    function recommendCourse() {
+  const email = localStorage.getItem('loggedInUser');
+  if (!email) {
+    alert("Please log in first.");
+    return;
+  }
+
+  // Sample view count logic
+  const courseViews = JSON.parse(localStorage.getItem('courseViews_' + email)) || {
+    C: 0, "C++": 0, JAVA: 0, PYTHON: 0
+  };
+
+  // Find the most viewed course
+  let topCourse = "C";
+  let maxViews = 0;
+  for (let course in courseViews) {
+    if (courseViews[course] > maxViews) {
+      maxViews = courseViews[course];
+      topCourse = course;
+    }
+  }
+
+  const messageBox = document.getElementById('chatbotMessages');
+  messageBox.innerHTML += `<div>🤖 I recommend you continue with <strong>${topCourse}</strong> based on your activity!</div>`;
+  messageBox.scrollTop = messageBox.scrollHeight;
+}
+
+// Update course views on selection
+function selectCourse(courseId) {
+  const email = localStorage.getItem('loggedInUser');
+  if (email) {
+    let courseViews = JSON.parse(localStorage.getItem('courseViews_' + email)) || {};
+    courseViews[courseId] = (courseViews[courseId] || 0) + 1;
+    localStorage.setItem('courseViews_' + email, JSON.stringify(courseViews));
+  }
+
+  document.getElementById('courseBoxSection').style.display = 'none';
+  document.getElementById('mainPortal').classList.add('active');
+  showSection('assignmentSection');
+  loadChart();
+  loadNotifications();
+}
+
+  </script>
+  <!-- Chatbot Recommendation System -->
+<div id="chatbotBox" style="
+position: fixed; 
+bottom: 10px; 
+right: 20px; 
+background: #ffffff; 
+border-radius: 12px; 
+padding: 12px; 
+box-shadow: 0 4px 16px rgba(0,0,0,0.2); 
+width: 220px;
+z-index: 1000;
+font-family: Arial, sans-serif;
+font-size: 12px;
+">
+<h3 style="margin-top: 0; font-size: 14px; color: #333;">CourseBot 🤖</h3>
+<div id="chatbotMessages" style="
+  height: 80px; 
+  overflow-y: auto; 
+  background: #f4f4f4; 
+  border: 1px solid #ddd; 
+  border-radius: 6px; 
+  padding: 6px; 
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: #444;
+"></div>
+<button onclick="recommendCourse()" style="
+  width: 100%; 
+  padding: 6px 0; 
+  background-color: #4CAF50; 
+  color: white; 
+  border: none; 
+  border-radius: 6px; 
+  cursor: pointer;
+">
+  Recommend a Course
+</button>
+</div>
+
+  
+  
+</body>
+</html>

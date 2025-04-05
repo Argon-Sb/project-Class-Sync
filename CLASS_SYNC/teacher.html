@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url(study_tip.png) no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container, #portal {
+            width: 90%;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+        }
+        input, button, select, textarea {
+            padding: 10px;
+            margin: 10px 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input.error, textarea.error, select.error {
+            border-color: red;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        .hidden { display: none; }
+        header {
+            background: #FF9800;
+            color: white;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #profilePreview {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+            gap: 8px;
+        }
+        nav button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            margin: 4px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+        nav button:hover {
+            background-color: #1976D2;
+            transform: scale(1.05);
+        }
+        .section {
+            display: none;
+            padding: 20px;
+            text-align: left;
+        }
+        #studentPerformanceChart {
+            max-width: 100%;
+            height: 400px;
+        }
+        .submissionList {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        #teacherDisplayName {
+            font-weight: bold;
+        }
+        header h1 {
+            align-items: center;padding-left: 100px;
+            
+        }
+    </style>
+</head>
+<body>
+    <header> 
+        <h1>Faculty Portal</h1>
+    </header>
+    <div class="container" id="authContainer">
+       
+        <h2 id="authTitle">Login</h2>
+        <input type="text" id="teacherName" placeholder="Your Name" style="display:none;">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="authenticate()" id="authButton">Login</button>
+        <p id="toggleAuth" onclick="toggleAuth()" style="cursor:pointer;color:blue;text-decoration:underline;">Don't have an account? Sign Up</p>
+    </div>
+
+    <div id="portal" class="hidden container">
+        <header>
+            <div>
+                <h1>Teacher Portal</h1>
+                <p id="teacherDisplayName">Welcome Teacher</p>
+            </div>
+            <img id="profilePreview" src="" alt="Profile Picture" style="display:none;">
+        </header>
+        <nav>
+            <button onclick="showSection('dashboardSection')">Dashboard</button>
+            <button onclick="showSection('profileSection')">Profile</button>
+            <button onclick="showSection('quizSection')">Quizzes</button>
+            <button onclick="showSection('assignmentSection')">Assignments</button>
+            <button onclick="showSection('querySection')">Student Queries</button>
+            <button onclick="logout()">Logout</button>
+        </nav>
+        <main>
+            <section id="dashboardSection" class="section">
+                <h2>Dashboard</h2>
+                <canvas id="studentPerformanceChart"></canvas>
+                <div id="editGraph">
+                    <h3>Edit Student Names and Scores</h3>
+                    <div id="editFields"></div>
+                    <button onclick="updateChartData()">Update Chart</button>
+                </div>
+            </section>
+
+            <section id="profileSection" class="section">
+                <h2>Upload Profile Picture</h2>
+                <input type="file" id="profilePicture" accept="image/*">
+                <button onclick="uploadProfilePicture()">Upload</button>
+            </section>
+
+            <section id="quizSection" class="section">
+                <h2>Create Quiz</h2>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <input type="text" id="quizQuestion" placeholder="Enter question">
+                    <input type="text" id="quizOption1" placeholder="Option 1">
+                    <input type="text" id="quizOption2" placeholder="Option 2">
+                    <input type="text" id="quizOption3" placeholder="Option 3">
+                    <input type="text" id="quizOption4" placeholder="Option 4">
+                    <select id="quizAnswer">
+                        <option value="1">Option 1</option>
+                        <option value="2">Option 2</option>
+                        <option value="3">Option 3</option>
+                        <option value="4">Option 4</option>
+                    </select>
+                    <button onclick="addQuizQuestion()">Add Question</button>
+                </div>
+                <ul id="quizList"></ul>
+            </section>
+
+            <section id="assignmentSection" class="section">
+                <h2>Create Assignment</h2>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" id="assignmentTitle" placeholder="Assignment Title">
+                    <textarea id="assignmentDesc" placeholder="Assignment Description"></textarea>
+                    <input type="file" id="assignmentFile" accept=".pdf,.doc,.docx">
+                    <input type="date" id="assignmentDeadline">
+                    <button onclick="createAssignment()">Create Assignment</button>
+                </div>
+                <ul id="assignmentList"></ul>
+            </section>
+
+            <section id="querySection" class="section">
+                <h2>Student Queries</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Query</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queryTableBody"></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let isLogin = true;
+        let chart;
+        let chartData = {
+            labels: ['Student A', 'Student B', 'Student C', 'Student D'],
+            scores: [85, 72, 90, 65]
+        };
+
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('authTitle').innerText = isLogin ? 'Login' : 'Sign Up';
+            document.getElementById('authButton').innerText = isLogin ? 'Login' : 'Sign Up';
+            document.getElementById('toggleAuth').innerText = isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login';
+            document.getElementById('teacherName').style.display = isLogin ? 'none' : 'block';
+        }
+
+        function authenticate() {
+            const name = document.getElementById('teacherName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if ((isLogin || name) && email && password) {
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('portal').classList.remove('hidden');
+                document.getElementById('teacherDisplayName').innerText = isLogin ? "Welcome Teacher" : `Welcome, ${name}`;
+
+                showSection('dashboardSection');
+            } else {
+                alert('Please fill all required fields');
+            }
+        }
+
+        function logout() {
+            document.getElementById('portal').classList.add('hidden');
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('teacherName').value = '';
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+            if (id === 'dashboardSection') {
+                renderStudentPerformanceChart();
+                populateEditFields();
+            }
+            if (id === 'querySection') {
+                loadStudentQueries();
+            }
+        }
+
+        function renderStudentPerformanceChart() {
+            const ctx = document.getElementById('studentPerformanceChart').getContext('2d');
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Scores',
+                        data: chartData.scores,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Score'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Student Name'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateEditFields() {
+            const container = document.getElementById('editFields');
+            container.innerHTML = '';
+            chartData.labels.forEach((name, index) => {
+                const inputName = document.createElement('input');
+                inputName.type = 'text';
+                inputName.value = name;
+                inputName.placeholder = 'Student Name';
+                inputName.dataset.index = index;
+
+                const inputScore = document.createElement('input');
+                inputScore.type = 'number';
+                inputScore.value = chartData.scores[index];
+                inputScore.placeholder = 'Score';
+                inputScore.dataset.index = index;
+
+                container.appendChild(inputName);
+                container.appendChild(inputScore);
+            });
+        }
+
+        function updateChartData() {
+            const inputs = document.querySelectorAll('#editFields input');
+            chartData.labels = [];
+            chartData.scores = [];
+            for (let i = 0; i < inputs.length; i += 2) {
+                chartData.labels.push(inputs[i].value);
+                chartData.scores.push(Number(inputs[i + 1].value));
+            }
+            renderStudentPerformanceChart();
+        }
+
+        function uploadProfilePicture() {
+            const fileInput = document.getElementById('profilePicture');
+            const preview = document.getElementById('profilePreview');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a picture to upload.');
+            }
+        }
+
+        function loadStudentQueries() {
+            const queries = [
+                { name: "Alice Johnson", query: "Can I get an extension on Assignment 2?" },
+                { name: "Bob Smith", query: "I didn’t understand today’s lecture." }
+            ];
+            const tbody = document.getElementById('queryTableBody');
+            tbody.innerHTML = '';
+            queries.forEach(q => {
+                const row = `<tr>
+    <td>${q.name}</td>
+    <td>${q.query}</td>
+    <td><button onclick="alert('Reply sent to ${q.name}')">Reply</button></td></tr>`;
+
+                tbody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>

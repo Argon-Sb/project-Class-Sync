@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Class sync</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background: url(sat.png) no-repeat center center fixed;
+      background-size: cover;
+    }
+    header {
+      color: white;
+      padding: 20px;
+      font-size: 26px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      margin-right: 000px;
+      justify-content: flex-start;
+    }
+    nav {
+      margin: 25px;
+      margin-left: 20px;
+    }
+    button {
+      padding: 12px 20px;
+      margin: 5px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #4CAF50, #388E3C);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    button:hover {
+      background: linear-gradient(135deg, #45a049, #2E7D32);
+      transform: scale(1.05);
+    }
+    .section {
+      margin: 30px auto;
+      padding: 30px;
+      border: 1px solid #ddd;
+      background: rgba(225, 224, 224, 0.95);
+      width: 60%;
+      border-radius: 12px;
+      box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+      display: none;
+      transition: all 0.5s ease-in-out;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    footer {
+      margin-top: 30px;
+      padding: 20px;
+      background: #333;
+      color: white;
+      font-size: 14px;
+      box-shadow: 0px -4px 6px rgba(0, 0, 0, 0.2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 10px;
+      text-align: center;
+    }
+    canvas {
+      max-width: 90%;
+      margin-top: 20px;
+    }
+    nav a {
+      text-decoration: none;
+    }
+  </style>
+  <script>
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
+    }
+
+    function signUp() {
+      const username = document.getElementById('signupUsername').value;
+      const password = document.getElementById('signupPassword').value;
+      if (!username || !password) {
+        alert('Please fill in all fields.');
+        return;
+      }
+      localStorage.setItem('adminUser', JSON.stringify({ username, password }));
+      alert('Sign Up Successful!');
+      showSection('login');
+    }
+
+    function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const storedUser = JSON.parse(localStorage.getItem('adminUser'));
+      if (storedUser && username === storedUser.username && password === storedUser.password) {
+        alert('Login Successful!');
+        showSection('dashboard');
+      } else {
+        alert('Invalid credentials, please try again.');
+      }
+    }
+
+    // Course Management
+    function addCourse() {
+      const name = document.getElementById('courseName').value;
+      if (name.trim()) {
+        const list = document.getElementById('courseList');
+        const li = document.createElement('li');
+        li.innerHTML = `
+          ${name}
+          <button onclick="editCourse(this)">Edit</button>
+          <button onclick="deleteCourse(this)">Delete</button>
+        `;
+        list.appendChild(li);
+        document.getElementById('courseName').value = '';
+      }
+    }
+
+    function deleteCourse(btn) {
+      btn.parentElement.remove();
+    }
+
+    function editCourse(btn) {
+      const li = btn.parentElement;
+      const courseName = prompt('Edit course name:', li.firstChild.textContent.trim());
+      if (courseName) {
+        li.firstChild.textContent = courseName + ' ';
+      }
+    }
+
+    // Chart.js - Sample Graph
+    window.onload = function () {
+      const ctx = document.getElementById('performanceChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Alice', 'Bob', 'Charlie', 'David'],
+          datasets: [{
+            label: 'Performance (%)',
+            data: [85, 72, 90, 65],
+            backgroundColor: '#4CAF50'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    };
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Welcome To Class Sync</h1>
+  </header>
+
+  <nav>
+    <button onclick="showSection('home')">Home</button>
+    <button onclick="showSection('login')">Login</button>
+    <button onclick="showSection('signup')">Sign Up</button>
+    <button onclick="showSection('dashboard')">Dashboard</button>
+    <a href="teacher.html"><button>Faculty</button></a>
+    <a href="index.html"><button>Students</button></a>
+    <button onclick="showSection('courses')">Courses</button>
+    <button onclick="showSection('reports')">Reports</button>
+    <button onclick="showSection('contact')">Contact Us</button>
+    <button onclick="showSection('help')">Help</button>
+  </nav>
+  <button onclick="showSection('virtualClassroom')">Virtual Classroom</button>
+
+  <main>
+    <section id="home" class="section" style="display: block;">
+      <h2>Welcome to the Admin Portal</h2>
+      <p>Manage the platform and track usage efficiently.</p>
+    </section>
+
+    <section id="login" class="section">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Username" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button onclick="login()">Login</button>
+    </section>
+
+    <section id="signup" class="section">
+      <h2>Sign Up</h2>
+      <input type="text" id="signupUsername" placeholder="Username" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <button onclick="signUp()">Sign Up</button>
+    </section>
+
+    <section id="dashboard" class="section">
+      <h2>Dashboard</h2>
+      <p>Welcome, Admin! Monitor platform usage and manage operations.</p>
+    </section>
+
+    <!-- ✅ Courses Section -->
+    <section id="courses" class="section">
+      <h2>Courses Offered</h2>
+      <input type="text" id="courseName" placeholder="Enter course name" />
+      <button onclick="addCourse()">Add Course</button>
+      <ul id="courseList" style="list-style: none; padding: 0;"></ul>
+    </section>
+
+    <!-- ✅ Reports Section -->
+    <section id="reports" class="section">
+      <h2>Student Performance Report</h2>
+      <table>
+        <tr><th>Name</th><th>Course</th><th>Score (%)</th></tr>
+        <tr><td>Alice</td><td>Python</td><td>85</td></tr>
+        <tr><td>Bob</td><td>Java</td><td>72</td></tr>
+        <tr><td>Charlie</td><td>Python</td><td>90</td></tr>
+        <tr><td>David</td><td>Java</td><td>65</td></tr>
+      </table>
+      <canvas id="performanceChart" height="150"></canvas>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>Contact Us</h2>
+      <p>TEAM: PIXEL PIRATS</p>
+      
+    </section>
+    <section id="virtualClassroom" class="section">
+      <h2>Virtual Classroom</h2>
+      <p>Join the live class session below:</p>
+      <iframe 
+        src="https://meet.jit.si/EduRoom123" 
+        style="width: 100%; height: 500px; border: 0; border-radius: 12px;" 
+        allow="camera; microphone; fullscreen; display-capture"
+        title="Virtual Classroom">
+      </iframe>
+    </section>
+
+    <section id="help" class="section">
+      <h2>Help</h2>
+      <p>Find answers to frequently asked questions here.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>PIXEL PIRATS</p>
+  </footer>
+</body>
+</html>
